@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Card from "./Card";
+
 interface Address {
   street: string;
   suite: string;
@@ -31,6 +32,7 @@ interface User {
 
 const DisplayDetailsSection = () => {
   const [data, setData] = useState<User[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -39,7 +41,6 @@ const DisplayDetailsSection = () => {
           "https://jsonplaceholder.typicode.com/users"
         );
         const result = await response.json();
-        console.log(result);
         setData(result);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -49,20 +50,34 @@ const DisplayDetailsSection = () => {
     fetchData();
   }, []);
 
+  // Function to filter the data based on the search query
+  const filteredData = data.filter(
+    (user) =>
+      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center flex-col">
+      <input
+        type="text"
+        placeholder="Search by name or email"
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className="p-2 border border-gray-400 rounded mb-4"
+      />
       <div className="w-[50%]">
-        {data.length > 0 ? (
-          data.map((user) => (
+        {filteredData.length > 0 ? (
+          filteredData.map((user) => (
             <Card
+              key={user.id}
               name={user.name}
               email={user.email}
               phone={user.phone}
-              key={user.id}
             />
           ))
         ) : (
-          <p>Loading...</p>
+          <p>No users found...</p>
         )}
       </div>
     </div>
